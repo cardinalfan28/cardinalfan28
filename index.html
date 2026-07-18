@@ -18,12 +18,7 @@ body{
     color:#222;
 }
 
-header{
-    background:#d8cfbf;
-    padding:15px 20px;
-    text-align:center;
-    border-bottom:4px solid #b3a486;
-}
+
 
 h1{
     font-size:64px;
@@ -208,22 +203,52 @@ h2{
 
 
 
-.hero{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    .page{
     min-height:100vh;
     display:flex;
-        align-items:center;
+    flex-direction:column;
+}
 
+header{
+    background:#d8cfbf;
+    padding:2vh 2vw;
+    text-align:center;
+    border-bottom:4px solid #b3a486;
+}
+
+.hero{
+    flex:1;
+    display:flex;
+    align-items:center;
     gap:10vw;
     padding:0 10vw;
 }
 
-
 .watch-area{
-    flex:0 0 auto;
     display:flex;
     flex-direction:column;
     align-items:center;
-     justify-content:center;
 }
 
 .image-area{
@@ -234,12 +259,9 @@ h2{
 }
 
 .image-placeholder{
-    width:100%;
-    height:80vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    overflow:hidden;
 }
 
 #historic-image{
@@ -254,12 +276,12 @@ h2{
 
 <body>
 
-<header>
-<h1>Pixel Break</h1>
-<div class="subtitle"></div>
-</header>
+<div class="page">
 
-<main>
+<header>
+    <h1>Pixel Break</h1>
+    <div class="subtitle"></div>
+</header>
 
 <div class="hero">
 
@@ -310,7 +332,6 @@ h2{
 
 </table>
 
-</main>
 
 
 
