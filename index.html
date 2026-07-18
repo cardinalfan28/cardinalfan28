@@ -226,6 +226,38 @@ h2{
     letter-spacing:2px;
 }
 
+
+.hero{
+    min-height:calc(100vh - 100px);
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:center;
+    gap:20vw;
+}
+
+.watch-area,
+.image-area{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+}
+
+.image-placeholder{
+    width:100%;
+    height:80vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+}
+
+#historic-image{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+}
+
 </style>
 
 </head>
@@ -239,18 +271,30 @@ h2{
 
 <main>
 
-<div id="timer-container">
-    <div id="timer-ring">
-        <div id="timer">00:00:00</div>
+<div class="hero">
+
+    <div class="watch-area">
+
+        <div id="timer-container">
+            <div id="timer-ring">
+                <div id="timer">00:00:00</div>
+            </div>
+        </div>
+
+        <button id="start">Start Break</button>
+        <button id="stop">End Break</button>
+
     </div>
-</div>
-
-<button id="start">Start Break</button>
-<button id="stop">End Break</button>
 
 
-<div class="image-placeholder">
-    <img src="image4.jpeg" alt="Vintage family in living room" id="historic-image">
+    <div class="image-area">
+
+        <div class="image-placeholder">
+            <img src="image4.jpeg" alt="Vintage family in living room" id="historic-image">
+        </div>
+
+    </div>
+
 </div>
 
 <!-- Extra space so users have to scroll to the history -->
