@@ -74,6 +74,22 @@ button:hover{
     display:none;
 }
 
+#deleteAll{
+    background:#555;
+    color:white;
+    margin-bottom:20px;
+}
+
+td button{
+    padding:6px 10px;
+    font-size:14px;
+    background:#b73939;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
 .image-placeholder{
     margin:90px auto;
     width:100%;
@@ -91,7 +107,8 @@ button:hover{
     height:500px;
 }
 
-table{
+
+    table{
     width:100%;
     border-collapse:collapse;
     margin-top:30px;
@@ -115,7 +132,7 @@ h2{
     margin-bottom:10px;
 }
 
-    #historic-image{
+#historic-image{
     display:block;
     width:100%;
     max-width:900px;
@@ -124,7 +141,6 @@ h2{
     border-radius:12px;
     box-shadow:0 8px 20px rgba(0,0,0,.2);
 }
-
 
 .image-placeholder{
     margin:90px auto;
@@ -152,7 +168,7 @@ h2{
     box-shadow:0 8px 20px rgba(0,0,0,.2);
 }
 
-    #timer-container{
+#timer-container{
     display:flex;
     justify-content:center;
     margin:40px 0;
@@ -205,10 +221,11 @@ h2{
     color:#2d2417;
     letter-spacing:2px;
 }
-    
+
 </style>
 
 </head>
+
 <body>
 
 <header>
@@ -218,18 +235,16 @@ h2{
 
 <main>
 
-
 <div id="timer-container">
     <div id="timer-ring">
         <div id="timer">00:00:00</div>
     </div>
-</div>    
+</div>
 
 <button id="start">Start Break</button>
 <button id="stop">End Break</button>
 
 
-    
 <div class="image-placeholder">
     <img src="image.png" alt="Vintage family in living room" id="historic-image">
 </div>
@@ -239,6 +254,8 @@ h2{
 
 <h2>Break History</h2>
 
+<button id="deleteAll">Delete All Breaks</button>
+
 <table>
 <thead>
 <tr>
@@ -247,6 +264,7 @@ h2{
 <th>Start Time</th>
 <th>End Time</th>
 <th>Length</th>
+<th>Delete</th>
 </tr>
 </thead>
 
@@ -256,7 +274,13 @@ h2{
 
 </main>
 
-<script>
+
+
+
+
+
+    <script>
+
 // ----------------------------------------------------
 // Change this to your own backend API.
 // LocalStorage is used as a fallback.
@@ -372,6 +396,7 @@ stopBtn.onclick = async function(){
 
 };
 
+
 async function loadHistory(){
 
     historyBody.innerHTML="";
@@ -389,7 +414,10 @@ async function loadHistory(){
 
     }
 
-    data.reverse().forEach(item=>{
+
+    data.reverse().forEach((item,index)=>{
+
+        const originalIndex = data.length - 1 - index;
 
         historyBody.innerHTML += `
         <tr>
@@ -398,12 +426,52 @@ async function loadHistory(){
             <td>${item.start}</td>
             <td>${item.end}</td>
             <td>${item.length}</td>
+            <td>
+                <button onclick="deleteRow(${originalIndex})">
+                    Delete
+                </button>
+            </td>
         </tr>
         `;
 
     });
 
 }
+
+
+
+
+
+
+        function deleteRow(index){
+
+    let data = JSON.parse(
+        localStorage.getItem("pixelBreakHistory") || "[]"
+    );
+
+    data.splice(index,1);
+
+    localStorage.setItem(
+        "pixelBreakHistory",
+        JSON.stringify(data)
+    );
+
+    loadHistory();
+}
+
+
+document.getElementById("deleteAll").onclick = function(){
+
+    if(confirm("Delete all break history?")){
+
+        localStorage.removeItem("pixelBreakHistory");
+
+        loadHistory();
+
+    }
+
+};
+
 
 loadHistory();
 
