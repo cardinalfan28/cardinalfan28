@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Break</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f1ea;
+    color:#222;
+}
+
+header{
+    background:#d8cfbf;
+    padding:60px 20px;
+    text-align:center;
+    border-bottom:4px solid #b3a486;
+}
+
+h1{
+    font-size:64px;
+    letter-spacing:4px;
+}
+
+.subtitle{
+    margin-top:10px;
+    font-size:20px;
+}
+
+main{
+    width:min(950px,90%);
+    margin:auto;
+    text-align:center;
+    padding:40px 0 80px;
+}
+
+#timer{
+    font-size:70px;
+    font-weight:bold;
+    margin:35px 0;
+    font-family:monospace;
+}
+
+button{
+    padding:16px 42px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    margin:8px;
+    transition:.2s;
+}
+
+button:hover{
+    transform:scale(1.04);
+}
+
+#start{
+    background:#2f8b46;
+    color:white;
+}
+
+#stop{
+    background:#b73939;
+    color:white;
+    display:none;
+}
+
+.image-placeholder{
+    margin:90px auto;
+    width:100%;
+    height:520px;
+    border:4px dashed #888;
+    background:#fafafa;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    color:#666;
+}
+
+.spacer{
+    height:500px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:30px;
+    background:white;
+}
+
+th{
+    background:#d8cfbf;
+}
+
+th,td{
+    border:1px solid #bbb;
+    padding:14px;
+}
+
+tr:nth-child(even){
+    background:#f8f8f8;
+}
+
+h2{
+    margin-bottom:10px;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<h1>PIXEL BREAK</h1>
+<div class="subtitle">Go live in the real world for a while.</div>
+</header>
+
+<main>
+
+<div id="timer">00:00:00</div>
+
+<button id="start">Start Break</button>
+<button id="stop">End Break</button>
+
+<div class="image-placeholder">
+PUT YOUR LARGE VINTAGE LIVING ROOM PHOTO HERE
+</div>
+
+<!-- Extra space so users have to scroll to the history -->
+<div class="spacer"></div>
+
+<h2>Break History</h2>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Day</th>
+<th>Start Time</th>
+<th>End Time</th>
+<th>Length</th>
+</tr>
+</thead>
+
+<tbody id="history"></tbody>
+
+</table>
+
+</main>
+
+<script>
+// ----------------------------------------------------
+// Change this to your own backend API.
+// LocalStorage is used as a fallback.
+// ----------------------------------------------------
+const API_URL = ""; // Example: "https://yourserver.com/api/breaks"
+
+let startTime = null;
+let timerInterval = null;
+
+const timer = document.getElementById("timer");
+const startBtn = document.getElementById("start");
+const stopBtn = document.getElementById("stop");
+const historyBody = document.getElementById("history");
+
+function pad(n){
+    return String(n).padStart(2,"0");
+}
+
+function updateTimer(){
+
+    const elapsed = Date.now() - startTime;
+
+    const totalSeconds = Math.floor(elapsed/1000);
+
+    const hours = Math.floor(totalSeconds/3600);
+    const minutes = Math.floor((totalSeconds%3600)/60);
+    const seconds = totalSeconds%60;
+
+    timer.textContent =
+        pad(hours)+":"+
+        pad(minutes)+":"+
+        pad(seconds);
+}
+
+function formatDuration(ms){
+
+    let mins = Math.floor(ms/60000);
+
+    const days = Math.floor(mins/1440);
+    mins %= 1440;
+
+    const hrs = Math.floor(mins/60);
+    mins %= 60;
+
+    return `${days}d ${hrs}h ${mins}m`;
+}
+
+startBtn.onclick = function(){
+
+    startTime = Date.now();
+
+    updateTimer();
+
+    timerInterval = setInterval(updateTimer,1000);
+
+    startBtn.style.display="none";
+    stopBtn.style.display="inline-block";
+
+};
+
+stopBtn.onclick = async function(){
+
+    clearInterval(timerInterval);
+
+    const endTime = Date.now();
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    const record = {
+
+        date:start.toLocaleDateString(),
+
+        day:start.toLocaleDateString(undefined,{
+            weekday:"long"
+        }),
+
+        start:start.toLocaleTimeString(),
+
+        end:end.toLocaleTimeString(),
+
+        length:formatDuration(endTime-startTime)
+
+    };
+
+    // If you have a backend, save there.
+    if(API_URL){
+
+        await fetch(API_URL,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(record)
+        });
+
+        loadHistory();
+
+    }else{
+
+        // Local fallback
+        let data = JSON.parse(localStorage.getItem("pixelBreakHistory")||"[]");
+        data.push(record);
+        localStorage.setItem("pixelBreakHistory",JSON.stringify(data));
+        loadHistory();
+
+    }
+
+    timer.textContent="00:00:00";
+
+    startBtn.style.display="inline-block";
+    stopBtn.style.display="none";
+
+};
+
+async function loadHistory(){
+
+    historyBody.innerHTML="";
+
+    let data=[];
+
+    if(API_URL){
+
+        const response = await fetch(API_URL);
+        data = await response.json();
+
+    }else{
+
+        data = JSON.parse(localStorage.getItem("pixelBreakHistory")||"[]");
+
+    }
+
+    data.reverse().forEach(item=>{
+
+        historyBody.innerHTML += `
+        <tr>
+            <td>${item.date}</td>
+            <td>${item.day}</td>
+            <td>${item.start}</td>
+            <td>${item.end}</td>
+            <td>${item.length}</td>
+        </tr>
+        `;
+
+    });
+
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
